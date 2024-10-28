@@ -1,0 +1,99 @@
+# Utiliza la imagen oficial de Debian como base
+FROM debian:latest
+
+# Actualiza la lista de paquetes e instala algunas utilidades básicas
+RUN apt-get update && \
+    apt-get install -y curl vim
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Comando por defecto al iniciar el contenedor
+CMD ["bash"]
+
+
+docker build -t mi_debian .
+
+
+P2.2 - Crear una imagen de Nginx utilizando un Dockerfile
+Crea un archivo Dockerfile en un nuevo directorio.
+
+Agrega este contenido para crear una imagen básica de Nginx:
+
+dockerfile
+Copia el codi
+# Utiliza la imagen base de Debian
+FROM debian:latest
+
+# Instala Nginx
+RUN apt-get update && \
+    apt-get install -y nginx && \
+    rm -rf /var/lib/apt/lists/*
+
+# Expone el puerto 80 para Nginx
+EXPOSE 80
+
+# Copia el archivo de configuración de Nginx (opcional)
+# COPY ./default.conf /etc/nginx/sites-available/default
+
+# Comando para iniciar Nginx en modo foreground
+CMD ["nginx", "-g", "daemon off;"]
+
+docker build -t mi_nginx .
+
+
+
+
+
+P2.3 - Despliegue de un blog en Joomla con Docker utilizando volúmenes
+Para desplegar un blog de Joomla, se utilizarán contenedores para Joomla y MySQL (o MariaDB) y se conectarán con Docker Compose para manejar los volúmenes y redes. Aquí tienes los pasos detallados:
+
+Crea un archivo docker-compose.yml en un directorio.
+
+Agrega el siguiente contenido al archivo docker-compose.yml:
+
+yaml
+Copia el codi
+version: '3.8'
+
+services:
+  joomla:
+    image: joomla
+    ports:
+      - "8080:80"
+    environment:
+      JOOMLA_DB_HOST: db
+      JOOMLA_DB_USER: joomla
+      JOOMLA_DB_PASSWORD: joomla123
+      JOOMLA_DB_NAME: joomla
+    volumes:
+      - joomla_data:/var/www/html
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: joomla
+      MYSQL_USER: joomla
+      MYSQL_PASSWORD: joomla123
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  joomla_data:
+  db_data:
+Este docker-compose.yml configura dos contenedores:
+
+Joomla: Utiliza la imagen oficial de Joomla y asigna el puerto 8080 en el host al puerto 80 en el contenedor.
+db (MySQL): Configura una base de datos MySQL con un usuario y contraseña específicos.
+Inicia el servicio usando Docker Compose:
+
+bash
+Copia el codi
+docker-compose up -d
+Accede a Joomla desde tu navegador en http://localhost:8080 y sigue el proceso de configuración inicial.
+
+
+
+
+
